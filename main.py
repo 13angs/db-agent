@@ -27,9 +27,9 @@ import mysql.connector
 # setup dialect, username, password
 DIALECT = 'mysql'
 USERNAME = 'root'
-PASSWORD = 'P@ssw0rd'
-HOST = 'testing.winonahappyv.net'
-DB_NAME = 'WhappyvDb'
+PASSWORD = ''
+HOST = ''
+DB_NAME = ''
 
 mysqldb = mysql.connector.connect(
     host=HOST,
