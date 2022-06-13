@@ -7,11 +7,20 @@ version: '3'
 
 services:
   agent:
-    image: 13angs/db-agent:latest
+    image: 13angs/db-agent:${IMG_VERSION}
     build:
       context: .
       dockerfile: Dockerfile
-    
+
+    environment:
+      - JOB_NAME=${JOB_NAME}
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_USER_PASSWORD=${DB_USER_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - BACKUP_PATH={BACKUP_PATH}
+      - CONTAINER_NAME=${CONTAINER_NAME}
+
     # run a Docker image with additional groups for the user
     group_add:
       - '0' # root
@@ -19,4 +28,3 @@ services:
     volumes:
       - ./backup:/usr/src/app/backup
       - /var/run/docker.sock:/var/run/docker.sock
-  

@@ -5,18 +5,27 @@ import pipes
 
 
 class Db_agent:
-    DB_HOST = '172.28.80.226'
-    DB_USER = 'root'
-    DB_USER_PASSWORD = 'P@ssw0rd'
+    DB_HOST = 'localhost'
+    DB_USER = ''
+    DB_USER_PASSWORD = 'root'
     #DB_NAME = '/backup/dbnameslist.txt'
-    DB_NAME = 'WhappyvDb'
+    DB_NAME = ''
     BACKUP_PATH = 'backup'
-    CONTAINER_NAME = 'db_agent-db-1'
+    CONTAINER_NAME = ''
     DOCKER_CMD = f'docker exec {CONTAINER_NAME}'
 
     # Getting current DateTime to create the separate backup folder like "20180817-123433".
     DATETIME = time.strftime('%Y%m%d-%H%M%S')
     TODAYBACKUPPATH = BACKUP_PATH + '/' + DATETIME
+
+    def __init__(self, host, user, password, database, backup_path, container):
+        self.DB_HOST = host
+        self.DB_USER = user
+        self.DB_USER_PASSWORD = password
+        self.DB_NAME = database
+        self.BACKUP_PATH = backup_path
+        self.CONTAINER_NAME = container
+        self.DOCKER_CMD = f'docker exec {self.CONTAINER_NAME}'
 
     def backup(self):
         # Checking if backup folder already exists or not. If not exists will create it.
@@ -58,6 +67,7 @@ class Db_agent:
                 p = p + 1
             dbfile.close()
         else:
+            print(f"dumping the database {self.DB_NAME}")
             db = self.DB_NAME
             dumpcmd = self.DOCKER_CMD + " mysqldump -h " + self.DB_HOST + " -u " + self.DB_USER + " -p" + \
                 self.DB_USER_PASSWORD + " " + db + " > " + \

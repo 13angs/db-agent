@@ -1,24 +1,24 @@
 # Import required python libraries
 
 from libs.db_agent import Db_agent
-import time
+import os
+from dotenv import load_dotenv
 
-# MySQL database details to which backup to be done. Make sure below user having enough privileges to take databases backup.
-# To take multiple databases backup, create any file like /backup/dbnames.txt and put databases names one on each line and assigned to DB_NAME variable.
+# load the env
+# https://www.twilio.com/blog/environment-variables-python
+load_dotenv()
 
-DB_HOST = '172.28.80.226'
-DB_USER = 'root'
-DB_USER_PASSWORD = 'P@ssw0rd'
-#DB_NAME = '/backup/dbnameslist.txt'
-DB_NAME = 'WhappyvDb'
-BACKUP_PATH = 'backup'
-CONTAINER_NAME = 'db_agent-db-1'
-DOCKER_CMD = f'docker exec {CONTAINER_NAME}'
+# get require envs
+JOB_NAME = os.environ['JOB_NAME']
+DB_HOST = os.environ['DB_HOST']
+DB_USER = os.environ['DB_USER']
+DB_USER_PASSWORD = os.environ['DB_USER_PASSWORD']
+DB_NAME = os.environ['DB_NAME']
+BACKUP_PATH = os.environ['BACKUP_PATH']
+CONTAINER_NAME = os.environ['CONTAINER_NAME']
 
-# Getting current DateTime to create the separate backup folder like "20180817-123433".
-DATETIME = time.strftime('%Y%m%d-%H%M%S')
-TODAYBACKUPPATH = BACKUP_PATH + '/' + DATETIME
+agent = Db_agent(DB_HOST, DB_USER, DB_USER_PASSWORD,
+                 DB_NAME, BACKUP_PATH, CONTAINER_NAME)
 
-agent = Db_agent()
-
-agent.backup()
+if JOB_NAME == 'BACKUP':
+    agent.backup()
