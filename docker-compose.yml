@@ -1,29 +1,22 @@
+# docker run --group-add 0 --group-add 1001 \
+# -v /var/run/docker.sock:/var/run/docker.sock \ 
+# -v /home/romdon/development/projects/13/db_agent/backup:/usr/src/app/backup \ 
+# 13angs/db-agent:latest
+
 version: '3'
 
 services:
-  db:
-    image: mysql:8.0
-    restart: always
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: P@ssw0rd
+  agent:
+    image: 13angs/db-agent:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    
+    # run a Docker image with additional groups for the user
+    group_add:
+      - '0' # root
+      - '1001' # docker
     volumes:
-      - db_agent_volume:/var/lib/mysql
-    networks:
-      - default
-
-  pma:
-    image: phpmyadmin
-    restart: always
-    ports:
-      - "8080:80"
-    environment:
-      - PMA_ARBITRARY=1
-      - UPLOAD_LIMIT=256M
-    networks:
-      - default
-
-volumes:
-  db_agent_volume:
-    external: true
+      - ./backup:/usr/src/app/backup
+      - /var/run/docker.sock:/var/run/docker.sock
+  
