@@ -1,5 +1,5 @@
 # docker from docker refs: https://tomgregory.com/running-docker-in-docker-on-windows/
-FROM python:3.7-alpine3.15
+FROM python:3.9.13-alpine3.16
 
 WORKDIR /usr/src/app
 
