@@ -27,4 +27,5 @@ services:
       - '1001' # docker
     volumes:
       - ./backup:/usr/src/app/backup
+      - ./restore:/usr/src/app/restore
       - /var/run/docker.sock:/var/run/docker.sock

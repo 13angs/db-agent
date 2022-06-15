@@ -1,10 +1,15 @@
 import os
 import time
-import datetime
+from datetime import datetime
 import pipes
+import shutil
+from .db_connect import DbConnect
 
 
-class Db_agent:
+class DbAgent:
+    """
+    DB_HOST
+    """
     DB_HOST = 'localhost'
     DB_USER = ''
     DB_USER_PASSWORD = 'root'
@@ -18,14 +23,15 @@ class Db_agent:
     DATETIME = time.strftime('%Y%m%d-%H%M%S')
     TODAYBACKUPPATH = BACKUP_PATH + '/' + DATETIME
 
-    def __init__(self, host, user, password, database, backup_path, container):
+    # user, password, database, backup_path, container
+    def __init__(self, host, **kwargs):
         self.DB_HOST = host
-        self.DB_USER = user
-        self.DB_USER_PASSWORD = password
-        self.DB_NAME = database
-        self.BACKUP_PATH = backup_path
-        self.CONTAINER_NAME = container
-        self.DOCKER_CMD = f'docker exec {self.CONTAINER_NAME}'
+        self.DB_USER = kwargs['user']
+        self.DB_USER_PASSWORD = kwargs['password']
+        self.DB_NAME = kwargs['database']
+        self.BACKUP_PATH = kwargs['backup_path']
+        self.CONTAINER_NAME = kwargs['container']
+        self.DOCKER_CMD = f'docker exec -i {self.CONTAINER_NAME}'
 
     def backup(self):
         # Checking if backup folder already exists or not. If not exists will create it.
@@ -84,3 +90,84 @@ class Db_agent:
 
     def show(self):
         print(self.TODAYBACKUPPATH)
+
+    def restore(self):
+        """
+        """
+        # gzipped db name
+        gzipped_db = f"{self.DB_NAME}.sql.gz"
+        unzip_db = f"{self.DB_NAME}.sql"
+        # get the current working directory
+        cwd = os.getcwd()
+
+        # get the backup and restore dir
+        backup_dir = os.path.join(cwd, 'backup')
+        restore_dir = os.path.join(cwd, 'restore')
+
+        # get all the file in backup dir
+        # and remove the .gitignore file
+        dirs = os.listdir(backup_dir)
+        dirs.remove('.gitignore')
+
+        restore_dirs = os.listdir(restore_dir)
+        restore_dirs.remove('.gitignore')
+
+        # convert string dt to datetime
+        # store the date and dir_name in dictionary
+        date_dirs = [{'created_date': datetime.strptime(str_date, '%Y%m%d-%H%M%S'),
+                      'dir_name': str_date}
+                     for str_date in dirs]
+
+        # resort the item as desc
+        sorted_date_dir = sorted(
+            date_dirs,
+            key=lambda x: x['created_date'],
+            reverse=True
+        )
+
+        # get the latest backup dir
+        # check if the dir exist
+        # create it in restore dir
+        latest_bk_dir = sorted_date_dir[0]
+
+        if not latest_bk_dir['dir_name'] in restore_dirs:
+            print('create the new restore dir')
+
+            # get the newest restore dir
+            new_restore_dir = os.path.join(
+                restore_dir, latest_bk_dir['dir_name'])
+
+            os.mkdir(new_restore_dir)
+
+            # copy the latest backup to the restore dir
+            new_res_path = os.path.join(restore_dir, latest_bk_dir['dir_name'])
+            bk_file_path = os.path.join(
+                backup_dir, latest_bk_dir['dir_name'], gzipped_db)
+            res_file_path = os.path.join(
+                new_res_path, gzipped_db)
+            shutil.copyfile(bk_file_path, res_file_path)
+            time.sleep(1)
+
+            # unzip the file
+            unzip_cmd = f"gzip -dk {res_file_path}"
+            os.system(unzip_cmd)
+            time.sleep(1)
+
+            # restore the db
+            # drop the database
+            # restore it using mysql cmd
+            db_con = DbConnect(
+                database=self.DB_NAME,
+                user=self.DB_USER,
+                password=self.DB_USER_PASSWORD,
+                docker_cmd=self.DOCKER_CMD
+            )
+
+            # drop all the existing tables
+            db_con.drop_all_table(new_res_path)
+
+            # restore the db
+            res_db_sql_cmd_path = os.path.join(new_res_path, unzip_db)
+            res_db_cmd = f'{self.DOCKER_CMD} mysql -u root -p{self.DB_USER_PASSWORD} {self.DB_NAME} < {res_db_sql_cmd_path}'
+            os.system(res_db_cmd)
+            time.sleep(1)
