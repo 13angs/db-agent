@@ -22,7 +22,6 @@
 # pip install -r requirements.txt
 
 # Import required python libraries
-import mysql.connector
 import os
 import sys
 import time
