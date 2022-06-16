@@ -1,5 +1,7 @@
 # Db Agent
 
+[![Docker Build](https://github.com/13angs/db_agent/actions/workflows/docker-build-main.yml/badge.svg)](https://github.com/13angs/db_agent/actions/workflows/docker-build-main.yml)
+
 ## Setup the workspace
 
 Clone the repository
