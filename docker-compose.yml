@@ -23,8 +23,9 @@ services:
 
     # run a Docker image with additional groups for the user
     group_add:
-      - ${ROOT_ID} # root
-      - ${DOCKER_ID} # docker
+      - ${ROOT_ID} # ROOT
+      - ${USER_ID} # USER
+      - ${DOCKER_ID} # DOCKER
     volumes:
       - backup_data:/usr/src/app/backup
       - restore_data:/usr/src/app/restore
