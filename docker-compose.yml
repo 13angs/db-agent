@@ -23,8 +23,8 @@ services:
 
     # run a Docker image with additional groups for the user
     group_add:
-      - '0' # root
-      - '1001' # docker
+      - ${ROOT_ID} # root
+      - ${DOCKER_ID} # docker
     volumes:
       - ./backup:/usr/src/app/backup
       - ./restore:/usr/src/app/restore
