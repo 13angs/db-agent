@@ -26,6 +26,21 @@ services:
       - ${ROOT_ID} # root
       - ${DOCKER_ID} # docker
     volumes:
-      - ./backup:/usr/src/app/backup
-      - ./restore:/usr/src/app/restore
+      - backup_data:/usr/src/app/backup
+      - restore_data:/usr/src/app/restore
       - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  backup_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${DB_AGENT_BACKUP_DATA}
+      o: bind
+
+  restore_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${DB_AGENT_RESTORE_DATA}
+      o: bind
