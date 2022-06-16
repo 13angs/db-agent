@@ -75,7 +75,7 @@ class DbAgent:
         else:
             print(f"dumping the database {self.DB_NAME}")
             db = self.DB_NAME
-            dumpcmd = self.DOCKER_CMD + " mysqldump -h " + self.DB_HOST + " -u " + self.DB_USER + " -p" + \
+            dumpcmd = self.DOCKER_CMD + " mysqldump" + " -u " + self.DB_USER + " -p" + \
                 self.DB_USER_PASSWORD + " " + db + " > " + \
                 pipes.quote(self.TODAYBACKUPPATH) + "/" + db + ".sql"
             os.system(dumpcmd)
