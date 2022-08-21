@@ -1,1 +1,4 @@
 .env
+libs/*
+!db_agent.py
+!db_connect.py
