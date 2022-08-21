@@ -1,8 +1,10 @@
-name: Docker Build
+name: db-agent-api
 
 on:
   pull_request:
     branches: [ main ]
+    paths:
+      - 'api/*'
   push:
     tags:
       - v*
@@ -22,7 +24,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with: 
-          images: 13angs/db-agent
+          images: 13angs/db-agent-api
 
       - name: Login to Dockerhub
         uses: docker/login-action@v2
@@ -33,7 +35,7 @@ jobs:
       - name: Build and push to Docker Hub
         uses: docker/build-push-action@v3
         with:
-          context: .
+          context: ./api
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: 13angs/db-agent-api:latest
           labels: ${{ steps.meta.outputs.labels }}
