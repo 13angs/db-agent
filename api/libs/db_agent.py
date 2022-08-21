@@ -31,13 +31,15 @@ class DbAgent:
         self.DB_NAME = kwargs['database']
         self.BACKUP_PATH = kwargs['backup_path']
         self.CONTAINER_NAME = kwargs['container']
+        self.DATETIME = kwargs['datetime']
         self.DOCKER_CMD = f'docker exec -i {self.CONTAINER_NAME}'
 
     def backup(self):
         # Checking if backup folder already exists or not. If not exists will create it.
         try:
             os.stat(self.TODAYBACKUPPATH)
-        except:
+        except Exception as e:
+            print(e)
             os.mkdir(self.TODAYBACKUPPATH)
 
         # Code for checking if you want to take single database backup or assinged multiple backups in DB_NAME.

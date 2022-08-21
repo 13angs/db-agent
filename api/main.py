@@ -1,7 +1,10 @@
 # Import required python libraries
+from datetime import datetime
 import os
 from dotenv import load_dotenv
 from libs.db_agent import DbAgent
+import sys
+import time
 
 # load the env
 # https://www.twilio.com/blog/environment-variables-python
@@ -15,6 +18,10 @@ DB_USER_PASSWORD = os.environ['DB_USER_PASSWORD']
 DB_NAME = os.environ['DB_NAME']
 BACKUP_PATH = os.environ['BACKUP_PATH']
 CONTAINER_NAME = os.environ['CONTAINER_NAME']
+DATETIME=time.strftime('%Y%m%d-%H%M%S')
+
+# save the print message into file
+sys.stdout = open(f'./data/logs/{DATETIME}.txt', 'w')
 
 agent = DbAgent(
     DB_HOST,
@@ -22,7 +29,8 @@ agent = DbAgent(
     password=DB_USER_PASSWORD,
     database=DB_NAME,
     backup_path=BACKUP_PATH,
-    container=CONTAINER_NAME
+    container=CONTAINER_NAME,
+    datetime=DATETIME
 )
 
 if JOB_NAME == 'BACKUP':
