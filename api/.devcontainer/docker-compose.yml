@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  api:
+    image: 13angs/db-agent:latest
+    container_name: db-agent-devcon-${OWNER}
+    build: 
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+      args:
+        - VARIANT=3.7
+        - NODE_VERSION="lts/*"
+    volumes:
+      - ../..:/workspaces/db-agent:cache
+      - /var/run/docker.sock:/var/run/docker.sock
+      
+    command: sleep infinity
