@@ -19,6 +19,8 @@ DB_NAME = os.environ['DB_NAME']
 BACKUP_PATH = os.environ['BACKUP_PATH']
 CONTAINER_NAME = os.environ['CONTAINER_NAME']
 DATETIME=time.strftime('%Y%m%d-%H%M%S')
+EVENT_NAME = os.environ['EVENT_NAME']
+BACKUP_ACTION = os.environ['BACKUP_ACTION']
 
 # save the print message into file
 sys.stdout = open(f'./data/logs/{DATETIME}.txt', 'w')
@@ -30,7 +32,9 @@ agent = DbAgent(
     database=DB_NAME,
     backup_path=BACKUP_PATH,
     container=CONTAINER_NAME,
-    datetime=DATETIME
+    datetime=DATETIME,
+    event_name=EVENT_NAME,
+    backup_action=BACKUP_ACTION
 )
 
 if JOB_NAME == 'BACKUP':

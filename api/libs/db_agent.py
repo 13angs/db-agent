@@ -3,7 +3,9 @@ import time
 from datetime import datetime
 import pipes
 import shutil
+
 from .db_connect import DbConnect
+import json
 
 
 class DbAgent:
@@ -22,6 +24,14 @@ class DbAgent:
     # Getting current DateTime to create the separate backup folder like "20180817-123433".
     DATETIME = time.strftime('%Y%m%d-%H%M%S')
     TODAYBACKUPPATH = BACKUP_PATH + '/' + DATETIME
+    JOB = {
+        "job_name": "backup", # backup, restore
+        "dir_name": "dir_name_here",
+        "event_name": "schedule_backup", # schedule_backup, manual_backup
+        "date_triggered": "12/01/1998",
+        "status": "success", # success, error
+        "backup_action": "local" # local, cloud, both
+    }
 
     # user, password, database, backup_path, container
     def __init__(self, host, **kwargs):
@@ -33,6 +43,11 @@ class DbAgent:
         self.CONTAINER_NAME = kwargs['container']
         self.DATETIME = kwargs['datetime']
         self.DOCKER_CMD = f'docker exec -i {self.CONTAINER_NAME}'
+        self.TODAYBACKUPPATH = f'{self.BACKUP_PATH}/{self.DATETIME}'
+        self.JOB['dir_name'] = kwargs['datetime']
+        self.JOB['event_name'] = kwargs['event_name']
+        self.JOB['date_triggered'] = kwargs['datetime']
+        self.JOB['backup_action'] = kwargs['backup_action']
 
     def backup(self):
         # Checking if backup folder already exists or not. If not exists will create it.
@@ -85,10 +100,24 @@ class DbAgent:
                 pipes.quote(self.TODAYBACKUPPATH) + "/" + db + ".sql"
             os.system(gzipcmd)
 
+        self.JOB['status'] = 'success'
         print("")
         print("Backup script completed")
         print("Your backups have been created in '" +
               self.TODAYBACKUPPATH + "' directory")
+
+        # get existing jobs.json
+        with open('./data/jobs.json', 'r') as rjson:
+            jobs = json.load(rjson)
+
+        # append the new job into existing jobs
+        print('Appending the job to jobs.json...')
+        jobs.append(self.JOB)
+
+        # save dict into json file
+        with open(f'./data/jobs.json', 'w') as wjson:
+            json.dump(jobs, wjson)
+        print("Complete saving job")
 
     def show(self):
         print(self.TODAYBACKUPPATH)
